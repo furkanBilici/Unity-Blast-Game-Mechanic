@@ -38,11 +38,13 @@ public class GridManaging : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("Start");
         GenerateGrid();
     }
 
     private void GenerateGrid()
     {
+        Debug.Log("generate grid");
         gridArray = new Node[width, height];
 
         float startX = -((width * spacing) / 2.0f) + (spacing / 2);
@@ -66,6 +68,7 @@ public class GridManaging : MonoBehaviour
     }
     Block GetBlockFromPool()
     {
+        Debug.Log("get block");
         if (blockPool.Count > 0)
         {
             Block b = blockPool.Dequeue();
@@ -76,12 +79,14 @@ public class GridManaging : MonoBehaviour
     }
     void ReturnToPool(Block b)
     {
+        Debug.Log("return pool");
         b.gameObject.SetActive(false);
         blockPool.Enqueue(b);
     }
     
     void SpawnBlockAt(int x, int y, Vector2 pos) 
     {
+        Debug.Log("spawn block");
         Block b = GetBlockFromPool();
         b.transform.position = pos;
         b.transform.localPosition = pos;
@@ -91,6 +96,7 @@ public class GridManaging : MonoBehaviour
     }
     public void ClickNode(Node clickedNode)
     {
+        Debug.Log("click node");
         if (isTouchLocked || clickedNode.block == null) return;
         List<Block> matches = new List<Block>();
         bool[,] visited = new bool[width, height];
@@ -104,21 +110,10 @@ public class GridManaging : MonoBehaviour
             StartCoroutine(ApplyGravityRoutine());
         }
     }
-    void FindMatches(int x,int y,int targetId, List<Block> result, bool[,] visited)
-    {
-        if (x < 0 || y < 0 || x>=width || y>=height) return;
-        if (visited[x,y])return;
-        if (gridArray[x,y].block == null) return;
-        if (gridArray[x,y].block.typeid == targetId) return;
-        visited[x,y] = true;
-        result.Add(gridArray[x,y].block );
-        FindMatches(x+1, y, targetId,result, visited); 
-        FindMatches(x-1, y, targetId, result, visited);
-        FindMatches(x, y + 1, targetId, result, visited);
-        FindMatches(x, y-1, targetId, result, visited);
-    }
+    
     IEnumerator ApplyGravityRoutine()
     {
+        Debug.Log("apply gravity");
         yield return new WaitForSeconds(0.1f);
         for (int x = 0; x < width; x++)
         {
@@ -153,8 +148,23 @@ public class GridManaging : MonoBehaviour
 
         isTouchLocked = false;
     }
-    void UpdateAllVisuals()
+    void FindMatches(int x, int y, int targetId, List<Block> result, bool[,] visited)
     {
+        Debug.Log("find matches");
+        if (x < 0 || y < 0 || x >= width || y >= height) return;
+        if (visited[x, y]) return;
+        if (gridArray[x, y].block == null) return;
+        if (gridArray[x, y].block.typeid != targetId) return;
+        visited[x, y] = true;
+        result.Add(gridArray[x, y].block);
+        FindMatches(x + 1, y, targetId, result, visited);
+        FindMatches(x - 1, y, targetId, result, visited);
+        FindMatches(x, y + 1, targetId, result, visited);
+        FindMatches(x, y - 1, targetId, result, visited);
+    }
+    public void UpdateAllVisuals()
+    {
+        Debug.Log("update visuals");
         bool[,] visited = new bool[width, height];
         for (int x = 0; x < width; x++)
         {
@@ -163,11 +173,11 @@ public class GridManaging : MonoBehaviour
                 if(!visited[x, y] && gridArray[x, y].block != null)
                 {
                     List<Block> group = new List<Block>();
-                    FindMatches(x, y - 1, gridArray[x,y].block.typeid , group, visited);
+                    FindMatches(x, y, gridArray[x,y].block.typeid , group, visited);
                     int state = 0;
-                    if (group.Count > conditionC) state = 3;
-                    if(group.Count>conditionB) state = 2;
-                    if(group.Count > conditionA) state = 1;
+                    if (group.Count >= conditionC) state = 3;
+                    else if (group.Count >= conditionB) state = 2;
+                    else if (group.Count >= conditionA) state = 1;
                     foreach (Block block in group)
                     {
                         block.UpdateVisualState(state);
@@ -178,6 +188,7 @@ public class GridManaging : MonoBehaviour
     }
     void CheckDeadlock()
     {
+        Debug.Log("deadlock check");
         bool hasmove = false;
         for (int x = 0; x < width; x++)
         {
@@ -199,7 +210,8 @@ public class GridManaging : MonoBehaviour
     }
     IEnumerator FixBoardRoutine()
     {
-            isTouchLocked = true;
+        Debug.Log("fix board");
+        isTouchLocked = true;
             yield return new WaitForSeconds(0.5f);
 
             List<Block> allBlocks = new List<Block>();
@@ -265,13 +277,17 @@ public class GridManaging : MonoBehaviour
         }
     void PlaceBlockAt(Block b, int x, int y)
     {
+        Debug.Log("place block");
+
         gridArray[x, y].SetBlock(b);
         b.Move(gridArray[x, y].transform.position);
     }
 
     List<Vector2Int> GetRandomConnectedCoordinates(int count)
-        {
-            List<Vector2Int> result = new List<Vector2Int>();
+    {
+        Debug.Log("get random coordinate");
+
+        List<Vector2Int> result = new List<Vector2Int>();
 
             int startX = Random.Range(0, width);
             int startY = Random.Range(0, height);
