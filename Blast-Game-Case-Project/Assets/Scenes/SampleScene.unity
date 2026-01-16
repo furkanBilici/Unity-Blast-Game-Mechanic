@@ -457,9 +457,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26224ac2e69c3254bbe88f3ac9dae1d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 5
-  height: 5
-  spacing: 1
+  width: 12
+  height: 10
+  spacing: 0.45
   gridPrefab: {fileID: -5980914286230697413, guid: 0b55d445538582244b12478c2bd82ffd, type: 3}
   blockPrefab: {fileID: 6439161812517972983, guid: 3586261f8ae79794b90123ff58ce8606, type: 3}
   boardCenter: {fileID: 1708576671}
@@ -545,7 +545,7 @@ Transform:
   m_GameObject: {fileID: 1708576670}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -2.19, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
