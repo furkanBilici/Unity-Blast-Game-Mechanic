@@ -1,10 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.GraphicsBuffer;
-using static UnityEngine.Rendering.DebugUI.Table;
 
 [System.Serializable]
 public struct ColorData
@@ -66,6 +62,41 @@ public class GridManaging : MonoBehaviour
         }
         UpdateAllVisuals(); 
     }
+    public void GenerateNewGrid()
+    {
+        StopAllCoroutines();
+        CleanGrid();
+        RefillGrid();
+        UpdateAllVisuals();
+        isTouchLocked = false;
+    }
+    private void CleanGrid()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (gridArray[x, y].block != null && gridArray[x, y] != null)
+                {
+                    ReturnToPool(gridArray[x, y].block);
+                    gridArray[x, y].block = null;
+                }
+                    
+            }
+        }
+
+    }
+    private void RefillGrid()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Vector2 pos = gridArray[x, y].transform.position;
+                SpawnBlockAt(x,y, pos); 
+            }
+        }
+    }
     Block GetBlockFromPool()
     {
         Debug.Log("get block");
@@ -105,6 +136,8 @@ public class GridManaging : MonoBehaviour
         {
             foreach (Block block in matches)
             {
+                Node node = block.currentNode;
+                node.block = null;
                 ReturnToPool(block);
             }
             StartCoroutine(ApplyGravityRoutine());
@@ -114,6 +147,7 @@ public class GridManaging : MonoBehaviour
     IEnumerator ApplyGravityRoutine()
     {
         Debug.Log("apply gravity");
+        isTouchLocked = true;
         yield return new WaitForSeconds(0.1f);
         for (int x = 0; x < width; x++)
         {
@@ -130,7 +164,7 @@ public class GridManaging : MonoBehaviour
                     gridArray[x, y].block = null;
                     int targety = y - emptyCount;
                     gridArray[x, targety].SetBlock(b);
-                    b.Move(gridArray[x, y].transform.position);
+                    b.Move(gridArray[x, targety].transform.position);
                 }
             }
             for(int i=0; i<emptyCount; i++)
@@ -141,16 +175,17 @@ public class GridManaging : MonoBehaviour
                 SpawnBlockAt(x,targety,spawnPos);
                 gridArray[x,targety].block.Move(gridArray[x, targety].transform.position);
             }
+            Debug.Log(emptyCount);
         }
         yield return new WaitForSeconds(0.4f);
         UpdateAllVisuals();
         CheckDeadlock();
-
+        
         isTouchLocked = false;
     }
     void FindMatches(int x, int y, int targetId, List<Block> result, bool[,] visited)
     {
-        Debug.Log("find matches");
+        //Debug.Log("find matches");
         if (x < 0 || y < 0 || x >= width || y >= height) return;
         if (visited[x, y]) return;
         if (gridArray[x, y].block == null) return;
@@ -162,9 +197,9 @@ public class GridManaging : MonoBehaviour
         FindMatches(x, y + 1, targetId, result, visited);
         FindMatches(x, y - 1, targetId, result, visited);
     }
-    public void UpdateAllVisuals()
+    private void UpdateAllVisuals()
     {
-        Debug.Log("update visuals");
+        //Debug.Log("update visuals");
         bool[,] visited = new bool[width, height];
         for (int x = 0; x < width; x++)
         {
@@ -196,8 +231,18 @@ public class GridManaging : MonoBehaviour
             {
                 if (gridArray[x, y].block == null) continue;
                 int id = gridArray[x, y].block.typeid;
-                if (id == gridArray[x + 1, y].block.typeid || id == gridArray[x - 1, y].block.typeid) hasmove = true;
-                if (id == gridArray[x, y + 1].block.typeid || id == gridArray[x, y - 1].block.typeid) hasmove = true;
+                if (x + 1 < width && gridArray[x + 1, y].block != null &&
+                    id == gridArray[x + 1, y].block.typeid)
+                    hasmove = true;
+                if (x - 1 >= 0 && gridArray[x - 1, y].block != null &&
+                    id == gridArray[x - 1, y].block.typeid)
+                    hasmove = true;
+                if (y + 1 < height && gridArray[x, y + 1].block != null &&
+                    id == gridArray[x, y + 1].block.typeid)
+                    hasmove = true;
+                if (y - 1 >= 0 && gridArray[x, y - 1].block != null &&
+                    id == gridArray[x, y - 1].block.typeid)
+                    hasmove = true;
                 if (hasmove) break;
             }
             if (hasmove) break;

@@ -10,7 +10,7 @@ public class Block : MonoBehaviour
     SpriteRenderer spriteRenderer;
     public int typeid = 0;//0:blue, 1:green, 2:pink, 3:purple, 4:red, 5:yellow
     public Node currentNode;
-    private bool ismoving = false;
+    //private bool ismoving = false;
     private void Awake()
     {
         if (spriteRenderer == null)
@@ -39,7 +39,7 @@ public class Block : MonoBehaviour
     }
     IEnumerator MovePosition(Vector2 target)
     {
-        ismoving= true;
+        //ismoving= true;
         float duration = 0.2f;
         float timer = 0f;
         Vector2 startPos = transform.position;
@@ -50,7 +50,7 @@ public class Block : MonoBehaviour
             timer += Time.deltaTime;
         }
         transform.position = target;
-        ismoving = false;
+        //ismoving = false;
     }
     public void SetCondition(int condition)
     {
