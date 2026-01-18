@@ -167,15 +167,16 @@ public class GridManaging : MonoBehaviour
                     b.Move(gridArray[x, targety].transform.position);
                 }
             }
-            for(int i=0; i<emptyCount; i++)
+            for(int i=1; i<=emptyCount; i++)
             {
-                int targety = height - emptyCount;
+                int targety = height - i;
                 Vector3 spawnPos = gridArray[x, targety].transform.position;
                 spawnPos.y += 5f;
                 SpawnBlockAt(x,targety,spawnPos);
                 gridArray[x,targety].block.Move(gridArray[x, targety].transform.position);
+                
             }
-            Debug.Log(emptyCount);
+            //Debug.Log(emptyCount);
         }
         yield return new WaitForSeconds(0.4f);
         UpdateAllVisuals();
