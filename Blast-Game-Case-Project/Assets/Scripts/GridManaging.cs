@@ -12,8 +12,8 @@ public struct ColorData
 public class GridManaging : MonoBehaviour
 {
     [Header("Grid ayarlarý")]
-    [SerializeField] int width = 5;
-    [SerializeField] int height = 5;
+    [SerializeField] private int _width = 5;
+    [SerializeField] private int _height = 5;
     [SerializeField] float spacing = 1;
 
     [Header("Prefablar")]
@@ -26,23 +26,28 @@ public class GridManaging : MonoBehaviour
     public int conditionA = 5;
     public int conditionB = 7;
     public int conditionC = 9;
+    [HideInInspector] public int width => _width;
+    [HideInInspector] public int height => _height;
 
-    [SerializeField] Node[,] gridArray;
+    [SerializeField] public Node[,] gridArray;//private
 
     bool[,] visited;
 
     ObjectPooler pooler;
     MatchFinder matchFinder = new MatchFinder();
+    ShuffleManager shuffleManager;
+    UiManager uiManager;
 
-    private bool isTouchLocked = false;
+    public bool isTouchLocked = false;
 
     private void Start()
     {
         visited = new bool[width, height];
         pooler = FindFirstObjectByType<ObjectPooler>();
+        shuffleManager = FindFirstObjectByType<ShuffleManager>();
+        uiManager = FindFirstObjectByType<UiManager>();
         //Debug.Log("Start");
         GenerateGrid();
-
     }
 
     private void GenerateGrid()
@@ -125,7 +130,10 @@ public class GridManaging : MonoBehaviour
         matchFinder.FindMatches(clickedNode.x, clickedNode.y, clickedNode.block.typeid, matches, visited, gridArray);
         if (matches.Count >= 2)
         {
+            Block clickedBlock = clickedNode.block;
             isTouchLocked = true;
+            clickedBlock.spriteRenderer.sortingOrder = height+1;
+            clickedBlock.transform.localScale*=1.2f;
             StartCoroutine(GatherBlocks(matches, clickedNode));
         }
 
@@ -133,18 +141,27 @@ public class GridManaging : MonoBehaviour
     IEnumerator GatherBlocks(List<Block> matches, Node clickedNode)
     {
         //Debug.Log("gather blocks");
+        int point = 0;
         float duration = 0.2f;
         foreach (Block block in matches)
         {
             block.Move(clickedNode.transform.position);
         }
         yield return new WaitForSeconds(duration);
+        clickedNode.block.transform.localScale /= 1.2f;
         foreach (Block block in matches)
         {
             Node node = block.currentNode;
             node.block = null;
             pooler.ReturnToPool(block);
+            point++;
         }
+        if(point<conditionA)
+            uiManager.AddPoints(point);
+        else if(point<conditionB)
+            uiManager.AddPoints(point*2);
+        else if(point<conditionC) uiManager.AddPoints(point*3);
+        else uiManager.AddPoints(point*4);
         StartCoroutine(ApplyGravityRoutine());
     }
 
@@ -183,12 +200,12 @@ public class GridManaging : MonoBehaviour
         }
         yield return new WaitForSeconds(0.4f);
         UpdateAllVisuals();
-        CheckDeadlock();
+        shuffleManager.CheckDeadlock();
 
         isTouchLocked = false;
     }
 
-    private void UpdateAllVisuals()
+    public void UpdateAllVisuals()
     {
         //Debug.Log("update visuals");
         //bool[,] visited = new bool[width, height];
@@ -213,162 +230,5 @@ public class GridManaging : MonoBehaviour
             }
         }
     }
-    void CheckDeadlock()
-    {
-        //Debug.Log("deadlock check");
-        bool hasmove = false;
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if (gridArray[x, y].block == null) continue;
-                int id = gridArray[x, y].block.typeid;
-                if (x + 1 < width && gridArray[x + 1, y].block != null &&
-                    id == gridArray[x + 1, y].block.typeid)
-                    hasmove = true;
-                if (x - 1 >= 0 && gridArray[x - 1, y].block != null &&
-                    id == gridArray[x - 1, y].block.typeid)
-                    hasmove = true;
-                if (y + 1 < height && gridArray[x, y + 1].block != null &&
-                    id == gridArray[x, y + 1].block.typeid)
-                    hasmove = true;
-                if (y - 1 >= 0 && gridArray[x, y - 1].block != null &&
-                    id == gridArray[x, y - 1].block.typeid)
-                    hasmove = true;
-                if (hasmove) break;
-            }
-            if (hasmove) break;
-        }
-        if (!hasmove)
-        {
-            // Debug.Log("deadlock sorunu");
-            StartCoroutine(FixBoardRoutine());
-        }
-    }
-    List<Block> GetAllBlocks()
-    {
-        List<Block> list = new List<Block>();
-
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++)
-                if (gridArray[x, y].block != null)
-                    list.Add(gridArray[x, y].block);
-
-        return list;
-    }
-    void ShuffleBlocks(List<Block> blocks)
-    {
-        for (int i = 0; i < blocks.Count; i++)
-        {
-            Block temp = blocks[i];
-            int rnd = Random.Range(i, blocks.Count);
-            blocks[i] = blocks[rnd];
-            blocks[rnd] = temp;
-        }
-    }
-    List<Block> CreateGuaranteedMatch(List<Block> blocks, int size)
-    {
-        List<Block> result = new List<Block>();
-        int color = blocks[0].typeid;
-
-        for (int i = 0; i < size; i++)
-        {
-            Block b = blocks[0];
-            blocks.RemoveAt(0);
-            b.Init(color, colorAssets[color].sprites);
-            result.Add(b);
-        }
-        return result;
-    }
-
-    IEnumerator FixBoardRoutine()
-    {
-        isTouchLocked = true;
-        yield return new WaitForSeconds(0.5f);
-
-        List<Block> allBlocks = GetAllBlocks();
-        ShuffleBlocks(allBlocks);
-
-        int matchSize = Mathf.Min(Random.Range(2, 5), allBlocks.Count);
-
-        List<Block> vipBlocks = CreateGuaranteedMatch(allBlocks, matchSize);
-        List<Vector2Int> targetCoords = GetRandomConnectedCoordinates(matchSize);
-
-        for (int i = 0; i < vipBlocks.Count; i++)
-        {
-            Vector2Int c = targetCoords[i];
-            PlaceBlockAt(vipBlocks[i], c.x, c.y);
-        }
-
-        HashSet<Vector2Int> reserved = new HashSet<Vector2Int>(targetCoords);
-
-        int index = 0;
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                if (reserved.Contains(new Vector2Int(x, y))) continue;
-                if (index >= allBlocks.Count) break;
-
-                PlaceBlockAt(allBlocks[index], x, y);
-                index++;
-            }
-        }
-
-        yield return new WaitForSeconds(0.5f);
-        UpdateAllVisuals();
-        isTouchLocked = false;
-    }
-
-    void PlaceBlockAt(Block b, int x, int y)
-    {
-        //Debug.Log("place block");
-
-        gridArray[x, y].SetBlock(b);
-        b.Move(gridArray[x, y].transform.position);
-    }
-
-    List<Vector2Int> GetRandomConnectedCoordinates(int count)
-    {
-        HashSet<Vector2Int> result = new HashSet<Vector2Int>();
-
-        Vector2Int start = new Vector2Int(
-            Random.Range(0, width),
-            Random.Range(0, height)
-        );
-
-        result.Add(start);
-
-        Vector2Int[] dirs =
-        {
-        Vector2Int.up,
-        Vector2Int.down,
-        Vector2Int.left,
-        Vector2Int.right
-    };
-
-        while (result.Count < count)
-        {
-            Vector2Int current = result.ElementAt(Random.Range(0, result.Count));
-
-            List<Vector2Int> neighbors = new List<Vector2Int>();
-
-            foreach (var dir in dirs)
-            {
-                Vector2Int next = current + dir;
-
-                if (next.x >= 0 && next.x < width &&
-                    next.y >= 0 && next.y < height &&
-                    !result.Contains(next))
-                {
-                    neighbors.Add(next);
-                }
-            }
-
-            if (neighbors.Count > 0)
-                result.Add(neighbors[Random.Range(0, neighbors.Count)]);
-        }
-
-        return new List<Vector2Int>(result);
-    }
 }
+   
