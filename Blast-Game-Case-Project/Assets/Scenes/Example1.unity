@@ -178,8 +178,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: NEW GRID
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -203,8 +203,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 66.78
-  m_fontSizeBase: 66.78
+  m_fontSize: 90
+  m_fontSizeBase: 90
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
@@ -564,6 +564,51 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &960068966
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 960068968}
+  - component: {fileID: 960068967}
+  m_Layer: 0
+  m_Name: ObjectPool_Service
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &960068967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960068966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5e034a50fcffc7408790bcf286b86c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockPrefab: {fileID: 6439161812517972983, guid: 3586261f8ae79794b90123ff58ce8606, type: 3}
+--- !u!4 &960068968
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960068966}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.73180246, y: -0.73271734, z: -0.08064735}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1049002894
 GameObject:
   m_ObjectHideFlags: 0
@@ -772,9 +817,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 12
   height: 10
-  spacing: 0.45
+  spacing: 0.4
   gridPrefab: {fileID: -5980914286230697413, guid: 0b55d445538582244b12478c2bd82ffd, type: 3}
-  blockPrefab: {fileID: 6439161812517972983, guid: 3586261f8ae79794b90123ff58ce8606, type: 3}
   boardCenter: {fileID: 1708576671}
   colorAssets:
   - name: Blue
@@ -813,9 +857,9 @@ MonoBehaviour:
     - {fileID: 414921610477409366, guid: 1e32bc028725e294c8573a88f4409141, type: 3}
     - {fileID: -6038182108957047188, guid: 33bb10e57fcc35540a78f56d4d85f07f, type: 3}
     - {fileID: -7586140276444505714, guid: 71a57834fe9286442a7b3fb88b815c5f, type: 3}
-  conditionA: 5
-  conditionB: 8
-  conditionC: 10
+  conditionA: 4
+  conditionB: 7
+  conditionC: 9
 --- !u!4 &1504043180
 Transform:
   m_ObjectHideFlags: 0
@@ -858,7 +902,7 @@ Transform:
   m_GameObject: {fileID: 1708576670}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -2.19, z: 0}
+  m_LocalPosition: {x: 0, y: -1.3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1110,3 +1154,4 @@ SceneRoots:
   - {fileID: 2137403070}
   - {fileID: 1504043180}
   - {fileID: 1049002896}
+  - {fileID: 960068968}

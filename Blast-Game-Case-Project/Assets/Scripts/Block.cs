@@ -7,7 +7,7 @@ public class Block : MonoBehaviour
 {
     Sprite[] sprites;//Default:0, A:1, B:2, C:3
 
-    SpriteRenderer spriteRenderer;
+    public SpriteRenderer spriteRenderer;
     public int typeid = 0;//0:blue, 1:green, 2:pink, 3:purple, 4:red, 5:yellow
     public Node currentNode;
     //private bool ismoving = false;
@@ -52,17 +52,4 @@ public class Block : MonoBehaviour
         transform.position = target;
         //ismoving = false;
     }
-    public void SetCondition(int condition)
-    {
-        spriteRenderer.sprite=sprites[condition];
-    }
-    public void Explode()
-    {
-        if (currentNode != null)
-        {
-            currentNode.block = null;
-            currentNode = null;
-        }
-        gameObject.SetActive(false);
-    }  
 }

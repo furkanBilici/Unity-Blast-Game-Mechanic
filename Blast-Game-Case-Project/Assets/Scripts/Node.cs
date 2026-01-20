@@ -7,13 +7,9 @@ public class Node : MonoBehaviour
     public void SetBlock(Block newBlock)
     {
         block = newBlock;
-        if (newBlock != null)
-        {
-            if (newBlock != null)
-            {
-                newBlock.currentNode = this;
-                newBlock.name = $"Block {x},{y}";
-            }
-        }
+        if (newBlock == null) return;
+        newBlock.spriteRenderer.sortingOrder = y;
+        newBlock.currentNode = this;
+        newBlock.name = $"Block {x},{y}";
     }
 }
